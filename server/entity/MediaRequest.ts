@@ -113,7 +113,15 @@ export class MediaRequest {
 
     const quotas = await requestUser.getQuota();
 
-    const canBypassQuota = user.hasPermission([Permission.MANAGE_REQUESTS]);
+    const canBypassQuota =
+      requestBody.ignoreQuota === true &&
+      user.hasPermission([Permission.MANAGE_REQUESTS]);
+
+    if (requestBody.ignoreQuota && !canBypassQuota) {
+      throw new RequestPermissionError(
+        'You do not have permission to bypass user quota limits.'
+      );
+    }
 
     if (!canBypassQuota) {
       if (
@@ -383,7 +391,7 @@ export class MediaRequest {
         rootFolder: rootFolder,
         tags: tags,
         isAutoRequest: options.isAutoRequest ?? false,
-        ignoreQuota: requestBody.ignoreQuota ?? false,
+        ignoreQuota: canBypassQuota,
       });
 
       await requestRepository.save(request);
@@ -516,7 +524,7 @@ export class MediaRequest {
             })
         ),
         isAutoRequest: options.isAutoRequest ?? false,
-        ignoreQuota: requestBody.ignoreQuota ?? false,
+        ignoreQuota: canBypassQuota,
       });
 
       await requestRepository.save(request);
