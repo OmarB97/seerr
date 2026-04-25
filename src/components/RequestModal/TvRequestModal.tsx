@@ -293,6 +293,7 @@ const TvRequestModal = ({
     if (
       quota?.tv.limit &&
       currentlyRemaining <= 0 &&
+      !requestOverrides?.ignoreQuota &&
       !isSelectedSeason(seasonNumber)
     ) {
       return;
@@ -317,6 +318,7 @@ const TvRequestModal = ({
     // If the user has a quota and not enough requests for all seasons, block toggleAllSeasons
     if (
       quota?.tv.limit &&
+      !requestOverrides?.ignoreQuota &&
       (quota?.tv.remaining ?? 0) < unrequestedSeasons.length
     ) {
       return;
@@ -552,6 +554,7 @@ const TvRequestModal = ({
                         className={`relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center pt-2 focus:outline-none ${
                           quota?.tv.remaining &&
                           quota.tv.limit &&
+                          !requestOverrides?.ignoreQuota &&
                           quota.tv.remaining < unrequestedSeasons.length
                             ? 'opacity-50'
                             : ''
@@ -634,6 +637,7 @@ const TvRequestModal = ({
                               className={`relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center pt-2 focus:outline-none ${
                                 mediaSeason ||
                                 (quota?.tv.limit &&
+                                  !requestOverrides?.ignoreQuota &&
                                   currentlyRemaining <= 0 &&
                                   !isSelectedSeason(season.seasonNumber)) ||
                                 (!!seasonRequest &&

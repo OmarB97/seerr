@@ -198,6 +198,7 @@ const CollectionRequestModal = ({
           rootFolder: requestOverrides.folder,
           userId: requestOverrides.user?.id,
           tags: requestOverrides.tags,
+          ignoreQuota: requestOverrides.ignoreQuota,
         };
       }
 
@@ -525,6 +526,7 @@ const CollectionRequestModal = ({
         <AdvancedRequester
           type="movie"
           is4k={is4k}
+          quota={quota}
           onChange={(overrides) => {
             setRequestOverrides(overrides);
           }}
