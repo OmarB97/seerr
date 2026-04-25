@@ -90,7 +90,10 @@ const TvRequestModal = ({
   const [tvdbId, setTvdbId] = useState<number | undefined>(undefined);
   const { data: quota } = useSWR<QuotaResponse>(
     user &&
-      (!requestOverrides?.user?.id || hasPermission(Permission.MANAGE_USERS))
+      (!requestOverrides?.user?.id ||
+        hasPermission([Permission.MANAGE_USERS, Permission.MANAGE_REQUESTS], {
+          type: 'or',
+        }))
       ? `/api/v1/user/${requestOverrides?.user?.id ?? user.id}/quota`
       : null
   );
