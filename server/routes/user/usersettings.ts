@@ -50,6 +50,7 @@ userSettingsRoutes.get<{ id: string }, UserSettingsGeneralResponse>(
         email: user.email,
         discordId: user.settings?.discordId,
         locale: user.settings?.locale,
+        mediaLocale: user.settings?.mediaLocale,
         discoverRegion: user.settings?.discoverRegion,
         streamingRegion: user.settings?.streamingRegion,
         originalLanguage: user.settings?.originalLanguage,
@@ -124,6 +125,7 @@ userSettingsRoutes.post<
         user: req.user,
         discordId: req.body.discordId,
         locale: req.body.locale,
+        mediaLocale: req.body.mediaLocale,
         discoverRegion: req.body.discoverRegion,
         streamingRegion: req.body.streamingRegion,
         originalLanguage: req.body.originalLanguage,
@@ -133,6 +135,7 @@ userSettingsRoutes.post<
     } else {
       user.settings.discordId = req.body.discordId;
       user.settings.locale = req.body.locale;
+      user.settings.mediaLocale = req.body.mediaLocale;
       user.settings.discoverRegion = req.body.discoverRegion;
       user.settings.streamingRegion = req.body.streamingRegion;
       user.settings.originalLanguage = req.body.originalLanguage;
@@ -146,6 +149,7 @@ userSettingsRoutes.post<
       username: savedUser.username,
       discordId: savedUser.settings?.discordId,
       locale: savedUser.settings?.locale,
+      mediaLocale: savedUser.settings?.mediaLocale,
       discoverRegion: savedUser.settings?.discoverRegion,
       streamingRegion: savedUser.settings?.streamingRegion,
       originalLanguage: savedUser.settings?.originalLanguage,

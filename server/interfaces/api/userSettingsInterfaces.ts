@@ -5,6 +5,7 @@ export interface UserSettingsGeneralResponse {
   email?: string;
   discordId?: string;
   locale?: string;
+  mediaLocale?: string;
   discoverRegion?: string;
   streamingRegion?: string;
   originalLanguage?: string;

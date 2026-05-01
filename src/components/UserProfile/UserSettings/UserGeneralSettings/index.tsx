@@ -60,6 +60,7 @@ const messages = defineMessages(
     seriesrequestlimit: 'Series Request Limit',
     enableOverride: 'Override Global Limit',
     applanguage: 'Display Language',
+    mediaLanguage: 'Media Language',
     languageDefault: 'Default ({language})',
     discordId: 'Discord User ID',
     discordIdTip:
@@ -160,6 +161,7 @@ const UserGeneralSettings = () => {
           email: data?.email?.includes('@') ? data.email : '',
           discordId: data?.discordId ?? '',
           locale: data?.locale,
+          mediaLocale: data?.mediaLocale,
           discoverRegion: data?.discoverRegion,
           streamingRegion: data?.streamingRegion,
           originalLanguage: data?.originalLanguage,
@@ -180,6 +182,7 @@ const UserGeneralSettings = () => {
                 values.email || user?.jellyfinUsername || user?.plexUsername,
               discordId: values.discordId,
               locale: values.locale,
+              mediaLocale: values.mediaLocale,
               discoverRegion: values.discoverRegion,
               streamingRegion: values.streamingRegion,
               originalLanguage: values.originalLanguage,
@@ -378,6 +381,36 @@ const UserGeneralSettings = () => {
                 <div className="form-input-area">
                   <div className="form-input-field">
                     <Field as="select" id="locale" name="locale">
+                      <option value="" lang={locale}>
+                        {intl.formatMessage(messages.languageDefault, {
+                          language:
+                            availableLanguages[currentSettings.locale].display,
+                        })}
+                      </option>
+                      {(
+                        Object.keys(
+                          availableLanguages
+                        ) as (keyof typeof availableLanguages)[]
+                      ).map((key) => (
+                        <option
+                          key={key}
+                          value={availableLanguages[key].code}
+                          lang={availableLanguages[key].code}
+                        >
+                          {availableLanguages[key].display}
+                        </option>
+                      ))}
+                    </Field>
+                  </div>
+                </div>
+              </div>
+              <div className="form-row">
+                <label htmlFor="mediaLocale" className="text-label">
+                  {intl.formatMessage(messages.mediaLanguage)}
+                </label>
+                <div className="form-input-area">
+                  <div className="form-input-field">
+                    <Field as="select" id="mediaLocale" name="mediaLocale">
                       <option value="" lang={locale}>
                         {intl.formatMessage(messages.languageDefault, {
                           language:
