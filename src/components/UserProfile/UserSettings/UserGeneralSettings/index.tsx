@@ -247,6 +247,13 @@ const UserGeneralSettings = () => {
           values,
           setFieldValue,
         }) => {
+          const effectiveLocale = (values.locale ||
+            data?.locale ||
+            currentSettings.locale ||
+            'en') as AvailableLocale;
+          const defaultMediaLocale = (values.mediaLocale ||
+            effectiveLocale) as AvailableLocale;
+
           return (
             <Form className="section">
               <div className="form-row">
@@ -414,7 +421,7 @@ const UserGeneralSettings = () => {
                       <option value="" lang={locale}>
                         {intl.formatMessage(messages.languageDefault, {
                           language:
-                            availableLanguages[currentSettings.locale].display,
+                            availableLanguages[defaultMediaLocale].display,
                         })}
                       </option>
                       {(
