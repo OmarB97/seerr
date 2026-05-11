@@ -3,6 +3,7 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   env: {
     commitTag: process.env.COMMIT_TAG || 'local',
+    demoMode: process.env.DEMO_MODE,
   },
   images: {
     remotePatterns: [

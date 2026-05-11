@@ -54,8 +54,8 @@ const LocalLogin = ({ revalidate }: LocalLoginProps) => {
   return (
     <Formik
       initialValues={{
-        email: '',
-        password: '',
+        email: process.env.demoMode === 'true' ? 'demo@seerr.dev' : '',
+        password: process.env.demoMode === 'true' ? 'test1234' : '',
       }}
       validationSchema={LoginSchema}
       validateOnBlur={false}
