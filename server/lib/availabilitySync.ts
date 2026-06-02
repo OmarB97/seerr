@@ -948,6 +948,8 @@ class AvailabilitySync {
             MediaStatus.PARTIALLY_AVAILABLE
       );
 
+      // If the Plex lookup failed but the show should be preserved, skip
+      // per-season lookups and keep previously available seasons available.
       if (preventSeasonSearch) {
         filteredSeasons.forEach((season) =>
           seasonsMap.set(season.seasonNumber, true)
@@ -1084,6 +1086,8 @@ class AvailabilitySync {
             MediaStatus.PARTIALLY_AVAILABLE
       );
 
+      // If the Jellyfin lookup failed but the show should be preserved, skip
+      // per-season lookups and keep previously available seasons available.
       if (preventSeasonSearch) {
         filteredSeasons.forEach((season) =>
           seasonsMap.set(season.seasonNumber, true)
