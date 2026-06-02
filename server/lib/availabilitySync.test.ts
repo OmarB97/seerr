@@ -798,9 +798,6 @@ describe('AvailabilitySync', () => {
     });
 
     it('should not delete seasons when the Jellyfin fetch fails with a non-404 error (e.g. server unreachable)', async () => {
-      // Mirror of the Plex outage regression test (seerr-team/seerr#1729) for
-      // the Jellyfin/Emby path, since this change applies the same fallback
-      // contract to mediaExistsInJellyfin.
       configureJellyfin();
       configureSonarr([{ syncEnabled: true }]);
 
@@ -824,15 +821,12 @@ describe('AvailabilitySync', () => {
       }
       await mediaRepository.save(media);
 
-      // Jellyfin is unreachable: item/season fetches reject with a connection
-      // error (NOT a 404/500). The media genuinely still exists in Jellyfin.
       getItemDataImpl = async () => {
         throw new Error('connect ECONNREFUSED 127.0.0.1:8096');
       };
       getSeasonsImpl = async () => {
         throw new Error('connect ECONNREFUSED 127.0.0.1:8096');
       };
-      // TMDB reports all three seasons as having episodes...
       getTvShowImpl = async () =>
         fakeTmdbShow(
           1412,
@@ -845,7 +839,6 @@ describe('AvailabilitySync', () => {
             season_number: n,
           }))
         );
-      // ...and Sonarr does not track the series, so it cannot vouch for them either.
       getSeriesByIdImpl = async () => {
         throw new Error('404');
       };
@@ -974,11 +967,6 @@ describe('AvailabilitySync', () => {
 
   describe('TV season availability - Plex', () => {
     it('should not delete seasons when the Plex season fetch fails with a non-404 error (e.g. server unreachable)', async () => {
-      // Regression test for seerr-team/seerr#1729: when Plex is briefly
-      // unreachable during an availability sync, the show is correctly kept
-      // ("Preventing removal"), but every season used to be marked DELETED
-      // because the empty Plex season map was treated as "confirmed absent".
-      // A connection error must NOT delete seasons we simply could not verify.
       configurePlex();
       configureSonarr([{ syncEnabled: true }]);
 
@@ -1002,15 +990,12 @@ describe('AvailabilitySync', () => {
       }
       await mediaRepository.save(media);
 
-      // Plex is unreachable: metadata fetches reject with a connection error
-      // (NOT a 404). The media genuinely still exists in Plex.
       getMetadataImpl = async () => {
         throw new Error('connect ECONNREFUSED 127.0.0.1:32400');
       };
       getChildrenMetadataImpl = async () => {
         throw new Error('connect ECONNREFUSED 127.0.0.1:32400');
       };
-      // TMDB reports all three seasons as having episodes...
       getTvShowImpl = async () =>
         fakeTmdbShow(
           1434,
@@ -1023,7 +1008,6 @@ describe('AvailabilitySync', () => {
             season_number: n,
           }))
         );
-      // ...and Sonarr does not track the series, so it cannot vouch for them either.
       getSeriesByIdImpl = async () => {
         throw new Error('404');
       };
