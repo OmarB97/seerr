@@ -899,6 +899,82 @@ describe('AvailabilitySync', () => {
   });
 
   describe('TV season availability - Plex', () => {
+    it('should not delete seasons when the Plex season fetch fails with a non-404 error (e.g. server unreachable)', async () => {
+      // Regression test for seerr-team/seerr#1729: when Plex is briefly
+      // unreachable during an availability sync, the show is correctly kept
+      // ("Preventing removal"), but every season used to be marked DELETED
+      // because the empty Plex season map was treated as "confirmed absent".
+      // A connection error must NOT delete seasons we simply could not verify.
+      configurePlex();
+      configureSonarr([{ syncEnabled: true }]);
+
+      const mediaRepository = getRepository(Media);
+
+      const media = new Media();
+      media.tmdbId = 1434;
+      media.mediaType = MediaType.TV;
+      media.status = MediaStatus.AVAILABLE;
+      media.ratingKey = 'plex-unreachable-rk';
+      media.externalServiceId = 300;
+      media.seasons = [];
+      for (let i = 1; i <= 3; i++) {
+        media.seasons.push(
+          new Season({
+            seasonNumber: i,
+            status: MediaStatus.AVAILABLE,
+            status4k: MediaStatus.UNKNOWN,
+          })
+        );
+      }
+      await mediaRepository.save(media);
+
+      // Plex is unreachable: metadata fetches reject with a connection error
+      // (NOT a 404). The media genuinely still exists in Plex.
+      getMetadataImpl = async () => {
+        throw new Error('connect ECONNREFUSED 127.0.0.1:32400');
+      };
+      getChildrenMetadataImpl = async () => {
+        throw new Error('connect ECONNREFUSED 127.0.0.1:32400');
+      };
+      // TMDB reports all three seasons as having episodes...
+      getTvShowImpl = async () =>
+        fakeTmdbShow(
+          1434,
+          [1, 2, 3].map((n) => ({
+            id: n,
+            air_date: '2024-01-01',
+            episode_count: 10,
+            name: `Season ${n}`,
+            overview: '',
+            season_number: n,
+          }))
+        );
+      // ...and Sonarr does not track the series, so it cannot vouch for them either.
+      getSeriesByIdImpl = async () => {
+        throw new Error('404');
+      };
+
+      await availabilitySync.run();
+
+      const updated = await mediaRepository.findOneOrFail({
+        where: { tmdbId: 1434 },
+        relations: ['seasons'],
+      });
+
+      for (const season of updated.seasons) {
+        assert.strictEqual(
+          season.status,
+          MediaStatus.AVAILABLE,
+          `Season ${season.seasonNumber} should remain AVAILABLE when Plex is unreachable, but was ${season.status}`
+        );
+      }
+      assert.strictEqual(
+        updated.status,
+        MediaStatus.AVAILABLE,
+        'Show should remain AVAILABLE when Plex is unreachable'
+      );
+    });
+
     it('should mark deleted seasons when Plex returns empty season metadata entries', async () => {
       configurePlex();
       configureSonarr([{ syncEnabled: true }]);

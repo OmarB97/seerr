@@ -937,30 +937,27 @@ class AvailabilitySync {
       }
     }
 
-    // Here we check each season in plex for availability
-    // If the API returns an error other than a 404,
-    // we will have to prevent the season check from happening
+    // Here we check each season in plex for availability.
+    // If the API returned an error other than a 404 we could not verify the
+    // seasons, so we assume the previously-available ones still exist instead
+    // of deleting media we simply failed to reach (mirrors the show-level guard).
     if (media.mediaType === 'tv') {
       const seasonsMap: Map<number, boolean> = new Map();
 
-      if (!preventSeasonSearch) {
-        const filteredSeasons = media.seasons.filter(
-          (season) =>
-            season[is4k ? 'status4k' : 'status'] === MediaStatus.AVAILABLE ||
-            season[is4k ? 'status4k' : 'status'] ===
-              MediaStatus.PARTIALLY_AVAILABLE
-        );
+      const filteredSeasons = media.seasons.filter(
+        (season) =>
+          season[is4k ? 'status4k' : 'status'] === MediaStatus.AVAILABLE ||
+          season[is4k ? 'status4k' : 'status'] ===
+            MediaStatus.PARTIALLY_AVAILABLE
+      );
 
-        for (const season of filteredSeasons) {
-          const seasonExists = await this.seasonExistsInPlex(
-            media,
-            season,
-            is4k
-          );
+      for (const season of filteredSeasons) {
+        const seasonExists = preventSeasonSearch
+          ? true
+          : await this.seasonExistsInPlex(media, season, is4k);
 
-          if (seasonExists) {
-            seasonsMap.set(season.seasonNumber, true);
-          }
+        if (seasonExists) {
+          seasonsMap.set(season.seasonNumber, true);
         }
       }
 
@@ -1074,30 +1071,27 @@ class AvailabilitySync {
       }
     }
 
-    // Here we check each season in jellyfin for availability
-    // If the API returns an error other than a 404,
-    // we will have to prevent the season check from happening
+    // Here we check each season in jellyfin for availability.
+    // If the API returned an error other than a 404 we could not verify the
+    // seasons, so we assume the previously-available ones still exist instead
+    // of deleting media we simply failed to reach (mirrors the show-level guard).
     if (media.mediaType === 'tv') {
       const seasonsMap: Map<number, boolean> = new Map();
 
-      if (!preventSeasonSearch) {
-        const filteredSeasons = media.seasons.filter(
-          (season) =>
-            season[is4k ? 'status4k' : 'status'] === MediaStatus.AVAILABLE ||
-            season[is4k ? 'status4k' : 'status'] ===
-              MediaStatus.PARTIALLY_AVAILABLE
-        );
+      const filteredSeasons = media.seasons.filter(
+        (season) =>
+          season[is4k ? 'status4k' : 'status'] === MediaStatus.AVAILABLE ||
+          season[is4k ? 'status4k' : 'status'] ===
+            MediaStatus.PARTIALLY_AVAILABLE
+      );
 
-        for (const season of filteredSeasons) {
-          const seasonExists = await this.seasonExistsInJellyfin(
-            media,
-            season,
-            is4k
-          );
+      for (const season of filteredSeasons) {
+        const seasonExists = preventSeasonSearch
+          ? true
+          : await this.seasonExistsInJellyfin(media, season, is4k);
 
-          if (seasonExists) {
-            seasonsMap.set(season.seasonNumber, true);
-          }
+        if (seasonExists) {
+          seasonsMap.set(season.seasonNumber, true);
         }
       }
 
